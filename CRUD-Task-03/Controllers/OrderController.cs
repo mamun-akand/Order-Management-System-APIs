@@ -48,8 +48,5 @@ namespace CRUD.Controllers
             var result = await _IOrderRepo.GetMinMax();
             return result;
         }
-
-
-
     }
 }

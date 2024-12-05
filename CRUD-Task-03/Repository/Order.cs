@@ -133,14 +133,61 @@ namespace CRUD.Repository
         {
             try
             {
-                decimal min = _context.OrderHeaders.Where(r => r.IsActive == true).Min(r => r.TotalAmount);
-                decimal max = _context.OrderHeaders.Where(r => r.IsActive == true).Max(r => r.TotalAmount);
+                var minOrder = await _context.OrderHeaders.Where(h => h.IsActive == true)
+                                                          .OrderBy(h => h.TotalAmount)
+                                                          .FirstOrDefaultAsync();
 
+                var minOrderHeader =  new GetOrderDetailsHeaderDTO
+                                      {
+                                           OrderId = minOrder.OrderId,
+                                           CustomerName = minOrder.CustomerName,
+                                           OrderDate = minOrder.OrderDate,
+                                      };
+
+                var minOrderRows = await _context.OrderRows.Where(r => r.IsActive == true && r.OrderId == minOrder.OrderId)
+                                                     .Select(row => new GetOrderDetailsRowDTO
+                                                     {
+                                                          OrderItemId = row.OrderItemId,
+                                                          ProductName = row.ProductName,
+                                                          Quantity = row.Quantity,
+                                                          UnitPrice = row.UnitPrice,
+                                                     }).ToListAsync();
+
+                var maxOrder = await _context.OrderHeaders.Where(h => h.IsActive == true)
+                                                    .OrderByDescending(h => h.TotalAmount)
+                                                    .FirstOrDefaultAsync();
+
+                var maxOrderHeader = new GetOrderDetailsHeaderDTO
+                                        {
+                                            OrderId = maxOrder.OrderId,
+                                            CustomerName = maxOrder.CustomerName,
+                                            OrderDate = maxOrder.OrderDate,
+                                        };
+
+                var maxOrderRows = await _context.OrderRows.Where(r => r.IsActive == true && r.OrderId == maxOrder.OrderId)
+                                                     .Select(row => new GetOrderDetailsRowDTO
+                                                     {
+                                                         OrderItemId = row.OrderItemId,
+                                                         ProductName = row.ProductName,
+                                                         Quantity = row.Quantity,
+                                                         UnitPrice = row.UnitPrice,
+                                                     }).ToListAsync();
                 return new MinMaxDTO
                 {
-                    Min = min,
-                    Max = max,
+                    MinOrderDetails = new GetOrderDetailsDTO
+                    {
+                        getOrderDetailsHeader = minOrderHeader,
+                        Rows = minOrderRows,
+                    },
+
+                    MaxOrderDetails = new GetOrderDetailsDTO
+                    {
+                        getOrderDetailsHeader = maxOrderHeader,
+                        Rows = maxOrderRows,
+                    }
                 };
+
+
             }
             catch (Exception ex)
             {

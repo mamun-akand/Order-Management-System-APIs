@@ -2,7 +2,7 @@
 {
     public class MinMaxDTO
     {
-        public decimal Min { get; set; }
-        public decimal Max { get; set; }
+        public GetOrderDetailsDTO MinOrderDetails { get; set; }
+        public GetOrderDetailsDTO MaxOrderDetails { get; set; }
     }
 }
