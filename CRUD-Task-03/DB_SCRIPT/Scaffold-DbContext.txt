@@ -1,0 +1,8 @@
+﻿
+---------------------------------------/* Office PC Configuration */------------------------------------------------
+ 
+dotnet ef dbcontext scaffold "Data Source=MAMUN\SQLEXPRESS;Initial Catalog=dbOrder;Connect Timeout=30;Encrypt=False;Trusted_Connection=true;TrustServerCertificate=False;ApplicationIntent=ReadWrite;" Microsoft.EntityFrameworkCore.SqlServer -o "Models" -c "AppDbContext" --context-dir "DBContext" -t [dbo].[OrderHeader] -t [dbo].[OrderRow] -f --project "C:\Users\ibos\source\repos\CRUD-Task-03\CRUD-Task-03\CRUD-Task-03.csproj"
+
+
+
+
