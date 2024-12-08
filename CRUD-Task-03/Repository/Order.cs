@@ -6,8 +6,10 @@ using CRUD_Task_03.DBContext;
 using CRUD_Task_03.DTO;
 using CRUD_Task_03.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
@@ -273,60 +275,70 @@ namespace CRUD.Repository
             }
         }
         
-        public async Task<List<GetOrderDetailsDTO>> GetOrdersByFilters(OrderFilterDTO filters)
+        public async Task<List<GetOrderDetailsTest>> GetOrdersByFilters(OrderFilterDTO filters)
         {
             try
             {
-                var allHeader = _context.OrderHeaders.Where(o => o.IsActive == true);
+                //var allDetails = await (from H in _context.OrderHeaders
+                //                        join R in _context.OrderRows on H.OrderId equals R.OrderId
+                //                        where (filters.StartDate == null || filters.StartDate >= H.OrderDate)
+                //                        && (filters.EndDate == null || filters.EndDate <= H.OrderDate)
+                //                        && (filters.CustomerName == null || H.CustomerName.ToLower().Contains(filters.CustomerName.ToLower()))
+                //                        && (filters.MinTotalAmount == null || filters.MinTotalAmount == 0 || filters.MinTotalAmount >= H.TotalAmount)
+                //                        && (filters.MaxTotalAmount == null || filters.MaxTotalAmount == 0 || filters.MaxTotalAmount <= H.TotalAmount)
+                //                        group R by new { H.OrderId, H.CustomerName, H.OrderDate } into grouped
+                //                        select new GetOrderDetailsDTO2
+                //                        {
+                //                            getOrderDetailsHeader = new GetOrderDetailsHeaderDTO2
+                //                            {
+                //                                OrderId = grouped.Key.OrderId,
+                //                                CustomerName = grouped.Key.CustomerName,
+                //                                OrderDate = grouped.Key.OrderDate,
+                //                                Rows = grouped.Select(r => new GetOrderDetailsRowDTO
+                //                                {
+                //                                    OrderItemId = r.OrderItemId,
+                //                                    ProductName = r.ProductName,
+                //                                    Quantity = r.Quantity,
+                //                                    UnitPrice = r.UnitPrice,
+                //                                }).ToList()
+                //                            }
 
-                if (filters.StartDate != null)
+                //                        }).ToListAsync();
+
+
+                var Headers = await (from H in _context.OrderHeaders
+                                                 where (filters.StartDate == null || filters.StartDate >= H.OrderDate)
+                                                       && (filters.EndDate == null || filters.EndDate <= H.OrderDate)
+                                                       && (filters.CustomerName == null || H.CustomerName.ToLower().Contains(filters.CustomerName.ToLower()))
+                                                       && (filters.MinTotalAmount == null || filters.MinTotalAmount == 0 || filters.MinTotalAmount >= H.TotalAmount)
+                                                       && (filters.MaxTotalAmount == null || filters.MaxTotalAmount == 0 || filters.MaxTotalAmount <= H.TotalAmount)
+                                                 select new GetOrderDetailsTest
+                                                 {
+                                                     OrderId = H.OrderId,
+                                                     CustomerName = H.CustomerName,
+                                                     OrderDate = H.OrderDate,
+                                                     Rows = new List<GetOrderDetailsRowDTO>()
+                                                 }).ToListAsync();
+
+                var orderRows = await _context.OrderRows
+                                              .Where(r => Headers.Select(h => h.OrderId).Contains(r.OrderId))
+                                              .ToListAsync();
+
+                var updateHeaders = Headers.Select(H =>
                 {
-                    allHeader = allHeader.Where(o => o.OrderDate >= filters.StartDate.Value.Date);
-                }
-
-                if (filters.EndDate != null)
-                {
-                    allHeader = allHeader.Where(o => o.OrderDate <= filters.EndDate.Value.Date);
-                }
-
-                if (filters.MinTotalAmount != null)
-                {
-                    allHeader = allHeader.Where(o => o.TotalAmount >= filters.MinTotalAmount);
-                }
-
-                if (filters.MaxTotalAmount != null)
-                {
-                    allHeader = allHeader.Where(o => o.TotalAmount <= filters.MaxTotalAmount);
-                }
-
-                if (filters.CustomerName != null)
-                {
-                    //allHeader = allHeader.Where(o => o.CustomerName.Contains(filters.CustomerName.Trim()));
-                    allHeader = allHeader.Where(o => o.CustomerName.ToLower() == filters.CustomerName.Trim().ToLower());
-                }
-
-                var allDetails = await (from H in allHeader
-                                        join R in _context.OrderRows on H.OrderId equals R.OrderId
-                                        group R by new { H.OrderId, H.CustomerName, H.OrderDate } into grouped
-                                        select new GetOrderDetailsDTO
-                                        {
-                                            getOrderDetailsHeader = new GetOrderDetailsHeaderDTO
-                                            {
-                                                OrderId = grouped.Key.OrderId,
-                                                CustomerName = grouped.Key.CustomerName,
-                                                OrderDate = grouped.Key.OrderDate,
-                                            },
-                                            Rows = grouped.Select(r => new GetOrderDetailsRowDTO
-                                            {
+                    H.Rows = orderRows.Where(r => r.OrderId == H.OrderId)
+                                           .Select(r => new GetOrderDetailsRowDTO
+                                           {
                                                 OrderItemId = r.OrderItemId,
                                                 ProductName = r.ProductName,
                                                 Quantity = r.Quantity,
-                                                UnitPrice = r.UnitPrice,
-                                            }).ToList()
-                                        }).ToListAsync();
+                                                UnitPrice = r.UnitPrice
+                                           })
+                                           .ToList();
+                    return H;
+                }).ToList();
 
-                return allDetails;
-
+                return updateHeaders;
             }
             catch (Exception)
             {
@@ -340,15 +352,15 @@ namespace CRUD.Repository
                 if (PageNo <= 0) PageNo = 1;
 
                 var currentData = await _context.OrderHeaders.Where(o => o.IsActive == true)
-                                                     .Skip((int)((PageNo - 1) * PageSize))
-                                                     .Take((int)PageSize)
-                                                     .Select(ord => new OrderListDataDTO
-                                                     {
-                                                         OrderId = ord.OrderId,
-                                                         OrderDate = ord.OrderDate,
-                                                         CustomerName = ord.CustomerName,
-                                                         TotalAmount = ord.TotalAmount,
-                                                     }).ToListAsync();
+                                                        .Skip((int)((PageNo - 1) * PageSize))
+                                                        .Take((int)PageSize)
+                                                        .Select(ord => new OrderListDataDTO
+                                                        {
+                                                            OrderId = ord.OrderId,
+                                                            OrderDate = ord.OrderDate,
+                                                            CustomerName = ord.CustomerName,
+                                                            TotalAmount = ord.TotalAmount,
+                                                        }).ToListAsync();
                 return new OrderListPaginationDTO
                 {
                     data = currentData,
