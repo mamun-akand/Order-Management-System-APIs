@@ -10,5 +10,8 @@ namespace CRUD.IRepository
         Task<MessageHelper> DeleteOrderWithCorrespondingItems(long orderId);
         Task<GetOrderDetailsDTO> GetOrderDetails(long Id);
         Task<MinMaxDTO> GetMinMax();
+        Task<List<GetOrderDetailsDTO>> SearchByCustormerName(string name); //
+
+
     }
 }

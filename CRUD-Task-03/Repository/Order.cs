@@ -186,14 +186,44 @@ namespace CRUD.Repository
                         Rows = maxOrderRows,
                     }
                 };
-
-
             }
             catch (Exception ex)
             {
                 throw;
             }
         }
+        public async Task<List<GetOrderDetailsDTO>> SearchByCustormerName(string name)
+        {
+            try
+            {
+                var allDetails = await (from H in _context.OrderHeaders.Where(x => x.CustomerName.Contains(name) && x.IsActive == true)
+                                        join R in _context.OrderRows on H.OrderId equals R.OrderId
+                                        group R by new{H.OrderId, H.CustomerName,H.OrderDate } into grouped
+                                        select new GetOrderDetailsDTO
+                                        {
+                                            getOrderDetailsHeader = new GetOrderDetailsHeaderDTO
+                                            {
+                                                OrderId = grouped.Key.OrderId,
+                                                CustomerName = grouped.Key.CustomerName,
+                                                OrderDate = grouped.Key.OrderDate,
+                                            },
+                                            Rows = grouped.Select(r => new GetOrderDetailsRowDTO
+                                            {
+                                                OrderItemId = r.OrderItemId,
+                                                ProductName = r.ProductName,
+                                                Quantity = r.Quantity,
+                                                UnitPrice = r.UnitPrice,
+                                            }).ToList()
+                                        }).ToListAsync();
+
+                return allDetails;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
 
     }
 

@@ -35,18 +35,26 @@ namespace CRUD.Controllers
 
         [HttpGet]
         [Route("GetOrderDatails")]
-        public async Task<GetOrderDetailsDTO> GetOrderDetails(int Id)
+        public async Task<IActionResult> GetOrderDetails(int Id)
         {
             var result = await _IOrderRepo.GetOrderDetails(Id);
-            return result;
+            return Ok(result);
         }
 
         [HttpGet]
         [Route("GetMinMax")]
-        public async Task<MinMaxDTO> GetMinMax()
+        public async Task<IActionResult> GetMinMax()
         {
             var result = await _IOrderRepo.GetMinMax();
-            return result;
+            return Ok(result);
+        }
+
+        [HttpGet]
+        [Route("SearchByCustormerName")]
+        public async Task<IActionResult> SearchByCustomerName(string name)
+        {
+            var result = await _IOrderRepo.SearchByCustormerName(name);
+            return Ok(result);
         }
     }
 }
