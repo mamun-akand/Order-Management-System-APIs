@@ -4,6 +4,7 @@ using CRUD.IRepository;
 using CRUD_Task_03.DTO;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Xml.Linq;
 
 namespace CRUD.Controllers
 {
@@ -54,6 +55,38 @@ namespace CRUD.Controllers
         public async Task<IActionResult> SearchByCustomerName(string name)
         {
             var result = await _IOrderRepo.SearchByCustormerName(name);
+            return Ok(result);
+        }
+
+        [HttpGet]
+        [Route("GetByDateRang")]
+        public async Task<IActionResult> GetByDateRang(DateTime fromDate, DateTime ToDate)
+        {
+            var result = await _IOrderRepo.GetByDateRang(fromDate, ToDate);
+            return Ok(result);
+        }
+
+        [HttpGet]
+        [Route("GetDateRangTotalAmount")]
+        public async Task<IActionResult> GetDateRangTotalAmount(DateTime fromDate, DateTime ToDate)
+        {
+            var result = await _IOrderRepo.GetDateRangTotalAmount(fromDate, ToDate);
+            return Ok(result);
+        }
+
+        [HttpGet]
+        [Route("GetOrdersByFilters")]
+        public async Task<IActionResult> GetOrdersByFilters([FromQuery] OrderFilterDTO filters)
+        {
+            var result = await _IOrderRepo.GetOrdersByFilters(filters);
+            return Ok(result);
+        }
+
+        [HttpGet]
+        [Route("GetOrderListPagination")]
+        public async Task<IActionResult> GetOrderListPagination(long PageNo, long PageSize)
+        {
+            var result = await _IOrderRepo.GetOrderListPagination(PageNo, PageSize);
             return Ok(result);
         }
     }
