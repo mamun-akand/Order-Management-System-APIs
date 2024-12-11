@@ -89,5 +89,13 @@ namespace CRUD.Controllers
             var result = await _IOrderRepo.GetOrderListPagination(PageNo, PageSize);
             return Ok(result);
         }
+
+        [HttpGet]
+        [Route("DateRangeSale")]
+        public async Task<IActionResult> DateRangeSale(DateTime fromDate, DateTime toDate)
+        {
+            var result = await _IOrderRepo.DateRangeSale(fromDate, toDate);
+            return Ok(result);
+        }
     }
 }
