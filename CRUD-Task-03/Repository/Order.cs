@@ -269,12 +269,11 @@ namespace CRUD.Repository
                     TotalAmount = TotalSum,
                 };
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw ex;
+                throw;
             }
         }
-        
         public async Task<List<GetOrderDetailsTest>> GetOrdersByFilters(OrderFilterDTO filters)
         {
             try
@@ -370,6 +369,38 @@ namespace CRUD.Repository
                 };
             }
             catch (Exception ex)
+            {
+                throw;
+            }
+        }
+        public async Task<DateRangeSaleDTO> DateRangeSale(DateTime fromDate, DateTime toDate)
+        {
+            try
+            {
+                decimal TotalSaleWithinRange = await _context.OrderHeaders
+                                                        .Where(x => x.OrderDate.Date <= toDate.Date
+                                                                    && x.OrderDate.Date >= fromDate.Date
+                                                                    && x.IsActive == true
+                                                        ).SumAsync(sale => sale.TotalAmount);
+
+                List<DailySale> dSales =  await _context.OrderHeaders
+                                                        .Where(x => x.OrderDate.Date <= toDate.Date && x.OrderDate.Date >= fromDate.Date && x.IsActive == true)
+                                                        .GroupBy(sale => sale.OrderDate.Date)
+                                                        .Select(gr => new DailySale
+                                                        {
+                                                            OrderDate = gr.Key,
+                                                            TotalSale = gr.Sum(s => s.TotalAmount),
+                                                        })
+                                                        .OrderBy(output => output.OrderDate)
+                                                        .ToListAsync();
+                return new DateRangeSaleDTO
+                {
+                    TotalAmountWithinDateRange = TotalSaleWithinRange,
+                    DailySaleList = dSales,
+                };
+
+            }
+            catch (Exception)
             {
                 throw;
             }

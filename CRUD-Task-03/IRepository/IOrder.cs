@@ -14,8 +14,8 @@ namespace CRUD.IRepository
         Task<List<GetOrderDetailsDTO>> SearchByCustormerName(string name);
         Task<List<GetOrderDetailsDTO>> GetByDateRang(DateTime fromDate, DateTime ToDate);
         Task<DateRangTotalAmount> GetDateRangTotalAmount(DateTime fromDate, DateTime ToDate);
-
-        Task<List<GetOrderDetailsTest>> GetOrdersByFilters(OrderFilterDTO filters);
-        Task<OrderListPaginationDTO> GetOrderListPagination(long PageNo, long PageSize);
+        Task<List<GetOrderDetailsTest>> GetOrdersByFilters(OrderFilterDTO filters); //Best
+        Task<OrderListPaginationDTO> GetOrderListPagination(long PageNo, long PageSize); //Best
+        Task<DateRangeSaleDTO> DateRangeSale(DateTime fromDate, DateTime toDate);
     }
 }
