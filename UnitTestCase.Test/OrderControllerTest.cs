@@ -112,6 +112,11 @@ public class FakeOrderRepository : IOrder
         throw new NotImplementedException();
     }
 
+    public Task<List<practiceDTO>> Practice()
+    {
+        throw new NotImplementedException();
+    }
+
     public Task<List<GetOrderDetailsDTO>> SearchByCustormerName(string name)
     {
         throw new NotImplementedException();
