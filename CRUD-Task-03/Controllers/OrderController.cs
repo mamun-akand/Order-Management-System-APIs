@@ -97,5 +97,13 @@ namespace CRUD.Controllers
             var result = await _IOrderRepo.DateRangeSale(fromDate, toDate);
             return Ok(result);
         }
+
+        [HttpGet]
+        [Route("Practice")]
+        public async Task<IActionResult> Practice()
+        {
+            var result = await _IOrderRepo.Practice();
+            return Ok(result);
+        } 
     }
 }

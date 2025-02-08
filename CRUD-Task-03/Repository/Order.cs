@@ -406,6 +406,35 @@ namespace CRUD.Repository
             }
         }
 
+        public async Task<List<practiceDTO>> Practice()
+        {
+            try
+            {
+                var result = await (from r in _context.OrderRows
+                                   join h in _context.OrderHeaders on r.OrderId equals h.OrderId into hh
+                                   from h in hh.DefaultIfEmpty()
+                                   select new practiceDTO
+                                   {
+                                       OrderId = h != null ? h.OrderId : 0,               
+                                       CustomerName = h != null ? h.CustomerName : "",    
+                                       TotalAmount = h != null ? h.TotalAmount : 0,        
+                                       IsActive = h != null ? h.IsActive : false,          
+
+                                       OrderItemId = r.OrderItemId,
+                                       ProductName = r.ProductName ?? "",                 
+                                       Quantity = r.Quantity != null ? r.Quantity : 0,   
+                                       UnitPrice = r.UnitPrice != null ? r.UnitPrice : 0 
+                                   }).ToListAsync();
+
+
+                return result;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
     }
 
 }

@@ -17,5 +17,6 @@ namespace CRUD.IRepository
         Task<List<GetOrderDetailsTest>> GetOrdersByFilters(OrderFilterDTO filters); //Best
         Task<OrderListPaginationDTO> GetOrderListPagination(long PageNo, long PageSize); //Best
         Task<DateRangeSaleDTO> DateRangeSale(DateTime fromDate, DateTime toDate);
+        public Task<List<practiceDTO>> Practice();
     }
 }

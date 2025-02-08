@@ -29,6 +29,19 @@ namespace CRUD_Task_03
 
             var app = builder.Build();
 
+
+            /* For Test Database Call Start */
+
+            // **Fetch and print orders from database**
+            using (var scope = app.Services.CreateScope()) // Create a scope for DI
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>(); // Get DbContext
+                FetchAndPrintOrders(dbContext);
+            }
+
+            /* For Test Database Call End */
+
+
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
@@ -44,6 +57,19 @@ namespace CRUD_Task_03
             app.MapControllers();
 
             app.Run();
+        }
+
+
+        // **Method to fetch and print orders**
+        private static void FetchAndPrintOrders(AppDbContext _dbContext)
+        {
+            var orders = _dbContext.OrderHeaders.ToList();
+
+            Console.WriteLine("Orders Retrieved from Database:");
+            foreach (var order in orders)
+            {
+                Console.WriteLine($"Order ID: {order.OrderId}, Customer: {order.CustomerName}");
+            }
         }
     }
 }
