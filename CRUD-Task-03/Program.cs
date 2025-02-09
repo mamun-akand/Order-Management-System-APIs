@@ -1,8 +1,10 @@
 using CRUD.IRepository;
 using CRUD.Repository;
+using CRUD_Task_03.Compiled_Query;
 using CRUD_Task_03.DBContext;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Diagnostics;
 
 namespace CRUD_Task_03
 {
@@ -36,7 +38,7 @@ namespace CRUD_Task_03
             using (var scope = app.Services.CreateScope()) // Create a scope for DI
             {
                 var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>(); // Get DbContext
-                FetchAndPrintOrders(dbContext);
+                GetDataUsingCompiledQuery(dbContext);
             }
 
             /* For Test Database Call End */
@@ -61,14 +63,18 @@ namespace CRUD_Task_03
 
 
         // **Method to fetch and print orders**
-        private static void FetchAndPrintOrders(AppDbContext _dbContext)
+        private static void GetDataUsingCompiledQuery(AppDbContext _dbContext)
         {
-            var orders = _dbContext.OrderHeaders.ToList();
-
-            Console.WriteLine("Orders Retrieved from Database:");
+            // Compiled Query Call
+            var orders = MyCompiledQuery.GetAllOrdersCompiled(_dbContext).ToList();
             foreach (var order in orders)
             {
-                Console.WriteLine($"Order ID: {order.OrderId}, Customer: {order.CustomerName}");
+                Console.WriteLine($"Order ID: {order.OrderId}, Customer: {order.CustomerName}, Date: {order.OrderDate}");
+                var orderRows = MyCompiledQuery.GetOrderRowsByOrderIdCompiled(_dbContext, order.OrderId).ToList();
+                foreach (var detail in orderRows)
+                {
+                    Console.WriteLine($"\tProduct: {detail.ProductName}, Quantity: {detail.Quantity}, Price: {detail.UnitPrice}");
+                }
             }
         }
     }
